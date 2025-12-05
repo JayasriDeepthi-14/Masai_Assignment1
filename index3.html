@@ -1,0 +1,188 @@
+<!-- L1 - Enhanced Todo List with localStorage and Search -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Simple Beginner Todo</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 640px; margin: 30px auto; padding: 16px; }
+    h1 { font-size: 24px; margin-bottom: 12px; }
+    .controls { display: flex; gap: 8px; margin-bottom: 12px; }
+    input[type="text"] { padding: 8px; font-size: 14px; flex: 1; box-sizing: border-box; }
+    button { padding: 8px 10px; cursor: pointer; font-size: 14px; }
+    ul#tasks { list-style: none; padding-left: 0; }
+    li.task { display: flex; align-items: center; justify-content: space-between; padding: 8px; margin-bottom: 8px; border: 1px solid #ddd; border-radius: 6px; }
+    .task .left { display: flex; align-items: center; gap: 10px; flex: 1; }
+    .task .text { word-break: break-word; }
+    .completed .text { text-decoration: line-through; color: #777; }
+    .meta { margin-top: 10px; color: #333; font-size: 13px; }
+    .remove-btn { background: transparent; border: none; color: #c33; cursor: pointer; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <h1>Simple Todo (Beginner)</h1>
+  <div class="controls">
+    <input id="newTask" type="text" placeholder="Type a new task and press Enter or click Add">
+    <button id="addBtn">Add</button>
+    <input id="search" type="text" placeholder="Search tasks...">
+  </div>
+
+  <!-- Task list -->
+  <ul id="tasks"></ul>
+  <div class="meta" id="metaInfo">0 tasks</div>
+  <script>
+    // Key for localStorage
+    const STORAGE_KEY = 'todoTasks';
+
+    // DOM elements
+    const newTaskInput = document.getElementById('newTask');
+    const addBtn = document.getElementById('addBtn');
+    const searchInput = document.getElementById('search');
+    const tasksList = document.getElementById('tasks');
+    const metaInfo = document.getElementById('metaInfo');
+
+    // In-memory array of task objects: { id, text, completed }
+    let tasks = [];
+
+    // Create a simple unique id (timestamp + random)
+    function createId() {
+      return Date.now().toString(36) + Math.floor(Math.random() * 1000).toString(36);
+    }
+
+    // Save tasks array to localStorage
+    function saveToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    }
+
+    // Load tasks array from localStorage
+    function loadFromStorage() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        try {
+          tasks = JSON.parse(raw);
+        } catch (e) {
+          console.error('Failed to parse tasks from storage:', e);
+          tasks = [];
+        }
+      } else {
+        tasks = [];
+      }
+    }
+
+    // Return true if string is not empty after trimming
+    function isValidText(txt) {
+      return txt.trim().length > 0;
+    }
+
+    // Render tasks to the DOM, optionally filtered by a search term
+    function renderTasks(filter = '') {
+      // Normalize filter
+      const q = filter.trim().toLowerCase();
+
+      // Clear current list
+      tasksList.innerHTML = '';
+
+      // Filter and create list items
+      const visible = tasks.filter(task => task.text.toLowerCase().includes(q));
+
+      visible.forEach(task => {
+        const li = document.createElement('li');
+        li.className = 'task' + (task.completed ? ' completed' : '');
+        li.dataset.id = task.id;
+
+        // Left part: checkbox + text
+        const left = document.createElement('div');
+        left.className = 'left';
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = !!task.completed;
+        cb.addEventListener('change', () => toggleCompleted(task.id, cb.checked));
+
+        const text = document.createElement('div');
+        text.className = 'text';
+        text.textContent = task.text;
+
+        left.appendChild(cb);
+        left.appendChild(text);
+
+        // Right part: remove button
+        const right = document.createElement('div');
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-btn';
+        removeBtn.textContent = 'Remove';
+        removeBtn.addEventListener('click', () => removeTask(task.id));
+        right.appendChild(removeBtn);
+
+        li.appendChild(left);
+        li.appendChild(right);
+        tasksList.appendChild(li);
+      });
+
+      // Update meta
+      const total = tasks.length;
+      const completed = tasks.filter(t => t.completed).length;
+      metaInfo.textContent = total + ' task' + (total !== 1 ? 's' : '') + ' • ' + completed + ' completed';
+    }
+
+    // Add a new task
+    function addTask() {
+      const text = newTaskInput.value;
+      if (!isValidText(text)) {
+        alert('Please enter a non-empty task.');
+        return;
+      }
+
+      const task = { id: createId(), text: text.trim(), completed: false };
+      tasks.push(task);
+      saveToStorage();
+      renderTasks(searchInput.value);
+      newTaskInput.value = '';
+      newTaskInput.focus();
+    }
+
+    // Toggle completed status for a task id
+    function toggleCompleted(id, completed) {
+      const t = tasks.find(x => x.id === id);
+      if (t) {
+        t.completed = !!completed;
+        saveToStorage();
+        renderTasks(searchInput.value);
+      }
+    }
+
+    // Remove a task by id
+    function removeTask(id) {
+      // simple confirm before removing
+      const ok = confirm('Remove this task?');
+      if (!ok) return;
+
+      tasks = tasks.filter(t => t.id !== id);
+      saveToStorage();
+      renderTasks(searchInput.value);
+    }
+
+    // Add button click
+    addBtn.addEventListener('click', addTask);
+
+    // Enter key in new task input adds task
+    newTaskInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        addTask();
+      }
+    });
+
+    // Real-time search
+    searchInput.addEventListener('input', (e) => {
+      renderTasks(e.target.value);
+    });
+
+    // Load tasks on startup and render
+    window.addEventListener('DOMContentLoaded', () => {
+      loadFromStorage();
+      renderTasks();
+    });
+  </script>
+</body>
+</html>
