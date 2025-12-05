@@ -1,0 +1,55 @@
+<!-- L0 - Creating and Removing Elements -->
+<!DOCTYPE html>
+<html lang>
+<head>
+  <title>Add / Remove Paragraphs</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; padding: 24px; }
+    #controls { margin-bottom: 16px; }
+    button { margin-right: 8px; padding: 8px 12px; }
+    #paragraphContainer p { margin: 8px 0; }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <!-- Buttons trigger JS functionality -->
+    <button id="addParagraphBtn">Add Paragraph</button>
+    <button id="removeLastParagraphBtn">Remove Last Paragraph</button>
+  </div>
+
+  <!-- Paragraphs will be added/removed inside this div -->
+  <div id="paragraphContainer"></div>
+
+  <script>
+    // Get references to DOM elements
+    const addBtn = document.getElementById('addParagraphBtn');
+    const removeBtn = document.getElementById('removeLastParagraphBtn');
+    const container = document.getElementById('paragraphContainer');
+
+    // Add paragraph on click
+    addBtn.addEventListener('click', () => {
+      // createElement: create a new <p> element
+      const p = document.createElement('p');
+
+      // set the text content for the paragraph
+      p.textContent = 'This is a new paragraph.';
+
+      // appendChild: add the new paragraph to the container
+      container.appendChild(p);
+    });
+
+    // Remove the last paragraph on click
+    removeBtn.addEventListener('click', () => {
+      // Check if the container has any child elements
+      const lastChild = container.lastElementChild;
+
+      if (lastChild) {
+        // removeChild: remove the last paragraph from the container
+        container.removeChild(lastChild);
+      } else {
+        alert('No paragraphs to remove.');
+      }
+    });
+  </script>
+</body>
+</html>
