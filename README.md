@@ -1,6 +1,6 @@
 # Masai_Assignment1 
 ## Readme for Index3.html
-###📌 Simple Todo List (Beginner Version)
+### Simple Todo List (Beginner Version)
 
 This is a beginner-friendly Todo List web application built using HTML, CSS, and JavaScript.
 ####It allows users to:
@@ -16,8 +16,8 @@ All tasks are stored as a JSON array in localStorage, where each task has:
 - id (unique)
 - text
 - completed status (true/false)
-- 
-####🚀 Features
+  
+#### Features
 1️ Add Tasks
 Users can type a task in the input box and click Add (or press Enter) to save it.
 
